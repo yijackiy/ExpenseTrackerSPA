@@ -1,0 +1,21 @@
+# Build output
+bin/
+obj/
+
+# Node
+node_modules/
+npm-debug.log*
+
+# Visual Studio
+.vs/
+*.user
+
+# WebSharper compiled output (generated from F# source)
+wwwroot/Scripts/
+
+# Rider / JetBrains
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,18 @@
+
+wwwroot/Scripts/* linguist-generated=true
+node_modules/* linguist-vendored=true
+bin/* linguist-generated=true
+obj/* linguist-generated=true
+*.min.js linguist-generated=true
+
+# WebSharper template — processed by F# compiler, not hand-written HTML
+wwwroot/index.html linguist-generated=true
+
+# Config / tooling files
+vite.config.js linguist-documentation=true
+esbuild.config.mjs linguist-documentation=true
+package.json linguist-documentation=true
+package-lock.json linguist-documentation=true
+wsconfig.json linguist-documentation=true
+NuGet.config linguist-documentation=true
+appsettings*.json linguist-documentation=true
