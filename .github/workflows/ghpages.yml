@@ -3,46 +3,36 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - master
+      - main
+
+permissions:
+  contents: write
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout 🛎️
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
         with:
-          persist-credentials: false 
-          submodules: true
+          dotnet-version: '9.0.x'
 
-      - name: Build
-        uses: actions/setup-dotnet@v1
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          dotnet-version: '6.0.x'
+          node-version: '20'
 
-      - name: Add GitHub registry NuGet source
-        run: 
-          dotnet nuget 
-            add source https://nuget.pkg.github.com/dotnet-websharper/index.json 
-            --name github 
-            --username granicz 
-            --password ${{ secrets.INTELLILOGOCI }} 
-            --store-password-in-clear-text
-
-      - run: npm install
-        working-directory: src/client
-      - run: dotnet build
-        working-directory: src/client
-      - run: npm run build:css
-        working-directory: src/client
-      - run: npm run release
-        working-directory: src/client
-      - run: cp -r src/client/examples dist/
-      - run: echo "logo.intellifactorylabs.com" > CNAME
-        working-directory: dist
+      - name: Restore and Build
+        run: |
+          dotnet restore
+          dotnet build -c Release
 
       - name: Deploy 🚀
-        uses: JamesIves/github-pages-deploy-action@releases/v3
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BRANCH: gh-pages
-          FOLDER: dist
+          folder: wwwroot
+          branch: gh-pages
+          clean: true
