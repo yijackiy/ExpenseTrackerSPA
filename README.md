@@ -1,6 +1,8 @@
 # ExpenseTracker Single Page App with F#
 
 This is a Single Page Application built using F# and WebSharper. It is a personal finance management tool where users can track their income and expenses, view their net balance, and analyse spending patterns through interactive charts across three pages: Dashboard, Transactions, and Reports.
+### you can see try-live link here
+- https://yijackiy.github.io/ExpenseTrackerSPA/
 
 ## Landing Page
 
