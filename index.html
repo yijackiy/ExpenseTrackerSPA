@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Expense Tracker - manage your income and expenses with clarity." />
+    <title>Expense Tracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" type="text/css" href="Scripts/ExpenseTracker.css" />
+    <style>
+        /* Hide unbound WebSharper template nodes */
+        [ws-template],
+        [ws-children-template],
+        [ws-replace],
+        [ws-hole] { display: none; }
+
+        /* ================================================================
+           DESIGN SYSTEM
+           3 core colors:
+             --navy   #0F172A   (dark background / text)
+             --indigo #6366F1   (primary accent)
+             --frost  #F8FAFC   (surface / light background)
+           ================================================================ */
+        :root {
+            --navy:        #0F172A;
+            --navy-soft:   #1E293B;
+            --navy-muted:  #334155;
+            --indigo:      #6366F1;
+            --indigo-dark: #4F46E5;
+            --indigo-pale: #EEF2FF;
+            --frost:       #F8FAFC;
+            --frost-mid:   #E2E8F0;
+            --text-main:   #0F172A;
+            --text-muted:  #64748B;
+            --success:     #22C55E;
+            --danger:      #EF4444;
+            --radius-sm:   6px;
+            --radius-md:   12px;
+            --radius-lg:   18px;
+            --shadow-sm:   0 1px 3px rgba(15,23,42,.08);
+            --shadow-md:   0 4px 16px rgba(15,23,42,.10);
+            --sidebar-w:   240px;
+            --header-h:    60px;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html, body {
+            height: 100%;
+            font-family: 'Inter', sans-serif;
+            background: var(--frost);
+            color: var(--text-main);
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        /* ================================================================
+           LAYOUT SHELL
+           ================================================================ */
+        .app-shell {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ================================================================
+           SIDEBAR
+           ================================================================ */
+        .sidebar {
+            width: var(--sidebar-w);
+            background: var(--navy);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0; left: 0; bottom: 0;
+            z-index: 100;
+            transition: transform 0.28s ease;
+        }
+
+        .sidebar-brand {
+            padding: 26px 24px 20px;
+            border-bottom: 1px solid var(--navy-soft);
+        }
+
+        .sidebar-brand .brand-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #FFFFFF;
+            letter-spacing: -0.3px;
+        }
+
+        .sidebar-brand .brand-sub {
+            font-size: 11px;
+            font-weight: 400;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 16px 12px;
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            border-radius: var(--radius-sm);
+            color: #94A3B8;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background 0.18s, color 0.18s;
+        }
+
+        .sidebar-nav a:hover {
+            background: var(--navy-soft);
+            color: #FFFFFF;
+        }
+
+        .sidebar-nav a.active {
+            background: var(--indigo);
+            color: #FFFFFF;
+        }
+
+        .sidebar-nav .nav-icon {
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+            opacity: 0.85;
+        }
+
+        .sidebar-footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--navy-soft);
+            font-size: 11px;
+            color: #475569;
+        }
+
+        /* ================================================================
+           MAIN CONTENT AREA
+           ================================================================ */
+        .main-area {
+            margin-left: var(--sidebar-w);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .top-bar {
+            height: var(--header-h);
+            background: #FFFFFF;
+            border-bottom: 1px solid var(--frost-mid);
+            display: flex;
+            align-items: center;
+            padding: 0 32px;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            gap: 12px;
+        }
+
+        .hamburger-btn {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+            padding: 6px;
+            border: none;
+            background: none;
+        }
+
+        .hamburger-btn span {
+            display: block;
+            width: 22px;
+            height: 2px;
+            background: var(--navy);
+            border-radius: 2px;
+            transition: all 0.25s;
+        }
+
+        .top-bar-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .page-content {
+            padding: 32px;
+            flex: 1;
+        }
+
+        /* ================================================================
+           OVERLAY (mobile)
+           ================================================================ */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15,23,42,.45);
+            z-index: 90;
+        }
+
+        .sidebar-overlay.active { display: block; }
+
+        /* ================================================================
+           TYPOGRAPHY
+           ================================================================ */
+        .page-heading {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 6px;
+            letter-spacing: -0.4px;
+        }
+
+        .page-sub {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 28px;
+        }
+
+        /* ================================================================
+           STAT CARDS ROW
+           ================================================================ */
+        .stat-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 28px;
+        }
+
+        .stat-card {
+            background: #FFFFFF;
+            border-radius: var(--radius-md);
+            padding: 22px 24px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--frost-mid);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--text-muted);
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-main);
+            letter-spacing: -0.5px;
+        }
+
+        .stat-value.positive { color: var(--success); }
+        .stat-value.negative { color: var(--danger); }
+
+        .stat-accent {
+            display: inline-block;
+            width: 32px;
+            height: 3px;
+            border-radius: 2px;
+            background: var(--indigo);
+            margin-top: 2px;
+        }
+
+        /* ================================================================
+           CARD / PANEL
+           ================================================================ */
+        .card {
+            background: #FFFFFF;
+            border-radius: var(--radius-md);
+            padding: 24px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--frost-mid);
+        }
+
+        .card-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 18px;
+        }
+
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 28px;
+        }
+
+        .three-col {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 28px;
+        }
+
+        /* ================================================================
+           TABLE
+           ================================================================ */
+        .data-table-wrap {
+            overflow-x: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table thead tr {
+            border-bottom: 2px solid var(--frost-mid);
+        }
+
+        .data-table th {
+            text-align: left;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--text-muted);
+            padding: 10px 14px;
+        }
+
+        .data-table tbody tr {
+            border-bottom: 1px solid var(--frost-mid);
+            transition: background 0.15s;
+        }
+
+        .data-table tbody tr:hover { background: var(--frost); }
+
+        .data-table td {
+            padding: 12px 14px;
+            font-size: 14px;
+            color: var(--text-main);
+            vertical-align: middle;
+        }
+
+        .data-table td.amount-cell {
+            font-weight: 600;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .amount-income  { color: var(--success); }
+        .amount-expense { color: var(--danger); }
+
+        /* ================================================================
+           BADGE
+           ================================================================ */
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-income  { background: #DCFCE7; color: #15803D; }
+        .badge-expense { background: #FEE2E2; color: #B91C1C; }
+
+        /* ================================================================
+           FORM
+           ================================================================ */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 16px;
+            align-items: end;
+            margin-bottom: 0;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-label {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+        }
+
+        .form-control {
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            padding: 9px 12px;
+            border: 1px solid var(--frost-mid);
+            border-radius: var(--radius-sm);
+            background: var(--frost);
+            color: var(--text-main);
+            transition: border-color 0.2s, box-shadow 0.2s;
+            width: 100%;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--indigo);
+            box-shadow: 0 0 0 3px rgba(99,102,241,.15);
+        }
+
+        /* ================================================================
+           BUTTONS
+           ================================================================ */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 10px 20px;
+            border-radius: var(--radius-sm);
+            border: none;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.15s, opacity 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn:active { transform: scale(0.97); }
+
+        .btn-primary {
+            background: var(--indigo);
+            color: #FFFFFF;
+        }
+
+        .btn-primary:hover { background: var(--indigo-dark); }
+
+        .btn-danger {
+            background: transparent;
+            color: var(--danger);
+            border: 1px solid #FECACA;
+            padding: 7px 14px;
+            font-size: 12px;
+        }
+
+        .btn-danger:hover { background: #FEE2E2; }
+
+        /* ================================================================
+           CHART WRAPPERS
+           ================================================================ */
+        .chart-wrap {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 280px;
+        }
+
+        .chart-wrap canvas {
+            max-width: 100%;
+        }
+
+        /* ================================================================
+           DIVIDER
+           ================================================================ */
+        .section-divider {
+            height: 1px;
+            background: var(--frost-mid);
+            margin: 24px 0;
+        }
+
+        /* ================================================================
+           RESPONSIVE
+           ================================================================ */
+        @media (max-width: 900px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main-area {
+                margin-left: 0;
+            }
+
+            .hamburger-btn {
+                display: flex;
+            }
+
+            .stat-row,
+            .two-col,
+            .three-col {
+                grid-template-columns: 1fr;
+            }
+
+            .page-content {
+                padding: 20px 16px;
+            }
+        }
+    </style>
+    <script type="text/javascript" src="Scripts/ExpenseTracker.head.js"></script>
+</head>
+<body>
+
+<!-- ============================================================
+     OUTER SHELL (always visible — nav + page slot)
+     ============================================================ -->
+<div class="app-shell">
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <div class="brand-name">ExpenseTracker</div>
+            <div class="brand-sub">Finance Dashboard</div>
+        </div>
+        <ul class="sidebar-nav">
+            <li>
+                <a id="nav-dashboard" href="#/">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+                        <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+                    </svg>
+                    Dashboard
+                </a>
+            </li>
+            <li>
+                <a id="nav-transactions" href="#/transactions">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/>
+                        <line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/>
+                        <line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
+                    </svg>
+                    Transactions
+                </a>
+            </li>
+            <li>
+                <a id="nav-reports" href="#/reports">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/>
+                        <line x1="6" y1="20" x2="6" y2="14"/>
+                    </svg>
+                    Reports
+                </a>
+            </li>
+        </ul>
+        <div class="sidebar-footer">Powered by F# + WebSharper</div>
+    </aside>
+
+    <!-- Overlay (mobile) -->
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+    <!-- Main area -->
+    <div class="main-area">
+        <header class="top-bar">
+            <button class="hamburger-btn" id="hamburger-btn" aria-label="Toggle navigation">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <span class="top-bar-title">Expense Tracker</span>
+        </header>
+
+        <main class="page-content">
+            <div ws-hole="PageContent"></div>
+        </main>
+    </div>
+</div>
+
+<!-- ============================================================
+     TEMPLATE: Dashboard
+     ============================================================ -->
+<div ws-template="Dashboard" class="dashboard-tpl">
+    <h1 class="page-heading">Dashboard</h1>
+    <p class="page-sub">Your financial overview at a glance.</p>
+
+    <!-- Stat cards -->
+    <div class="stat-row">
+        <div class="stat-card">
+            <span class="stat-label">Total Income</span>
+            <span class="stat-value positive">${TotalIncome}</span>
+            <span class="stat-accent"></span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-label">Total Expenses</span>
+            <span class="stat-value negative">${TotalExpense}</span>
+            <span class="stat-accent"></span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-label">Net Balance</span>
+            <span class="stat-value ${BalanceClass}">${Balance}</span>
+            <span class="stat-accent"></span>
+        </div>
+    </div>
+
+    <!-- Overview chart + recent transactions -->
+    <div class="two-col">
+        <div class="card">
+            <div class="card-title">Income vs Expenses</div>
+            <div class="chart-wrap">
+                <canvas ws-replace="OverviewChart"></canvas>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-title">Recent Transactions</div>
+            <div class="data-table-wrap">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Category</th>
+                            <th>Note</th>
+                            <th>Type</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody ws-hole="RecentRows" ws-children-template="RecentRow">
+                        <tr>
+                            <td>${EntryDate}</td>
+                            <td>${EntryCategory}</td>
+                            <td>${EntryNote}</td>
+                            <td><span class="${EntryKindClass}">${EntryKind}</span></td>
+                            <td class="amount-cell">${EntrySign}${EntryAmount}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================
+     TEMPLATE: Transactions
+     ============================================================ -->
+<div ws-template="Transactions" class="transactions-tpl">
+    <h1 class="page-heading">Transactions</h1>
+    <p class="page-sub">Add and manage all your income and expense entries.</p>
+
+    <!-- Add entry form -->
+    <div class="card" style="margin-bottom:24px;">
+        <div class="card-title">Add Entry</div>
+        <div class="form-grid">
+            <div class="form-group">
+                <label class="form-label" for="entry-date">Date</label>
+                <input ws-var="NewDate" id="entry-date" class="form-control" type="date" />
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="entry-type">Type</label>
+                <select ws-var="NewKind" id="entry-type" class="form-control">
+                    <option value="income">Income</option>
+                    <option value="expense">Expense</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="entry-category">Category</label>
+                <select ws-var="NewCategory" id="entry-category" class="form-control">
+                    <option value="Salary">Salary</option>
+                    <option value="Freelance">Freelance</option>
+                    <option value="Gift">Gift</option>
+                    <option value="Investment">Investment</option>
+                    <option value="Rent">Rent</option>
+                    <option value="Groceries">Groceries</option>
+                    <option value="Dining">Dining</option>
+                    <option value="Transport">Transport</option>
+                    <option value="Utilities">Utilities</option>
+                    <option value="Health">Health</option>
+                    <option value="Entertainment">Entertainment</option>
+                    <option value="Shopping">Shopping</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="entry-note">Note</label>
+                <input ws-var="NewNote" id="entry-note" class="form-control" type="text" placeholder="Short description" />
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="entry-amount">Amount</label>
+                <input ws-var="NewAmount" id="entry-amount" class="form-control" type="number" placeholder="0.00" step="0.01" min="0" />
+            </div>
+            <div class="form-group" style="justify-content:flex-end;">
+                <button ws-onclick="AddEntry" id="btn-add-entry" class="btn btn-primary">Add Entry</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- All transactions table -->
+    <div class="card">
+        <div class="card-title">All Transactions</div>
+        <div class="data-table-wrap">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Category</th>
+                        <th>Note</th>
+                        <th>Type</th>
+                        <th>Amount</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody ws-hole="AllRows" ws-children-template="TransactionRow">
+                    <tr>
+                        <td>${RowDate}</td>
+                        <td>${RowCategory}</td>
+                        <td>${RowNote}</td>
+                        <td><span class="${RowKindClass}">${RowKind}</span></td>
+                        <td class="amount-cell">${RowSign}${RowAmount}</td>
+                        <td>
+                            <button ws-onclick="RemoveEntry" class="btn btn-danger">Remove</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================
+     TEMPLATE: Reports
+     ============================================================ -->
+<div ws-template="Reports" class="reports-tpl">
+    <h1 class="page-heading">Reports</h1>
+    <p class="page-sub">Visual breakdown of your spending and income patterns.</p>
+
+    <!-- Summary stats -->
+    <div class="stat-row" style="margin-bottom:28px;">
+        <div class="stat-card">
+            <span class="stat-label">Total Income</span>
+            <span class="stat-value positive">${ReportIncome}</span>
+            <span class="stat-accent"></span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-label">Total Expenses</span>
+            <span class="stat-value negative">${ReportExpense}</span>
+            <span class="stat-accent"></span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-label">Net Balance</span>
+            <span class="stat-value">${ReportNet}</span>
+            <span class="stat-accent"></span>
+        </div>
+    </div>
+
+    <!-- Pie charts side by side -->
+    <div class="two-col" style="margin-bottom:24px;">
+        <div class="card">
+            <div class="card-title">Expense Breakdown</div>
+            <div class="chart-wrap">
+                <canvas ws-replace="ExpensePieChart"></canvas>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-title">Income Breakdown</div>
+            <div class="chart-wrap">
+                <canvas ws-replace="IncomePieChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bar chart full width -->
+    <div class="card">
+        <div class="card-title">Income by Category (Bar Chart)</div>
+        <div class="chart-wrap" style="min-height:280px;">
+            <canvas ws-replace="BarChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<script type="module" src="Scripts/ExpenseTracker.min.js"></script>
+
+</body>
+</html>
