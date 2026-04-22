@@ -46,20 +46,7 @@ module Model =
         nextId <- nextId + 1
         id
 
-    let defaultEntries : Entry list = [
-        { Id = newId(); Date = "2026-04-01"; Category = "Salary";        Note = "Monthly pay";       Amount = 3500.00; Kind = Income  }
-        { Id = newId(); Date = "2026-04-03"; Category = "Rent";          Note = "April rent";        Amount = 1200.00; Kind = Expense }
-        { Id = newId(); Date = "2026-04-05"; Category = "Groceries";     Note = "Weekly shop";       Amount =  180.00; Kind = Expense }
-        { Id = newId(); Date = "2026-04-08"; Category = "Freelance";     Note = "Web project";       Amount =  850.00; Kind = Income  }
-        { Id = newId(); Date = "2026-04-10"; Category = "Transport";     Note = "Monthly pass";      Amount =   72.00; Kind = Expense }
-        { Id = newId(); Date = "2026-04-12"; Category = "Dining";        Note = "Dinner out";        Amount =   55.00; Kind = Expense }
-        { Id = newId(); Date = "2026-04-14"; Category = "Utilities";     Note = "Electric bill";     Amount =   95.00; Kind = Expense }
-        { Id = newId(); Date = "2026-04-16"; Category = "Entertainment"; Note = "Streaming subs";    Amount =   30.00; Kind = Expense }
-        { Id = newId(); Date = "2026-04-18"; Category = "Health";        Note = "Gym membership";    Amount =   45.00; Kind = Expense }
-        { Id = newId(); Date = "2026-04-20"; Category = "Gift";          Note = "Birthday present";  Amount =  200.00; Kind = Income  }
-    ]
-
-    let entries = Var.Create defaultEntries
+    let entries = Var.Create ([] : Entry list)
 
 // ---------------------------------------------------------------------------
 // Chart helpers
